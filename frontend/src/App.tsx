@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { ethers } from "ethers";
+import { ethers, parseEther } from "ethers";
 import TODO_ABI from "../contractsData/Todo.json";
 import TODO_ADDRESS from "../contractsData/Todo-address.json";
 // import { addTodo } from "./helperFunc";
@@ -11,6 +11,8 @@ function App() {
 	const [signer, setSigner] = useState();
 	const [loading, setIsLoading] = useState(false);
 	const [inputValue, setInputValue] = useState();
+	const [balance, setBalance] = useState<any>();
+	const [account, setAccount] = useState<any>();
 	async function connectToWallet() {
 		let provider;
 		if (window?.ethereum === null) {
@@ -20,6 +22,12 @@ function App() {
 			provider = new ethers.BrowserProvider(window?.ethereum as any);
 			setSigner((await provider.getSigner()) as any);
 			fetchTodos((await provider.getSigner()) as any);
+			setBalance(
+				(await provider.getBalance(
+					(await provider.getSigner()).getAddress()
+				)) as any
+			);
+			setAccount((await provider.getSigner()).address as any);
 		}
 	}
 	const todoContract = (_signer: any) =>
@@ -67,7 +75,9 @@ function App() {
 				</div>
 				<div className="">
 					<button className="" onClick={connectToWallet}>
-						{signer ? "Connected" : "Connect Wallet"}
+						{signer
+							? `${account?.slice(0, 6)}...${account?.slice(-4)}`
+							: "Connect Wallet"}
 					</button>
 				</div>
 			</nav>
